@@ -93,9 +93,9 @@ print("¿Desea generar un archivo CSV formateado para cada posible horario? [Y =
 
 if input(">").lower() == "y":
 	for horario in range(len(posHorarios)):
-		dir = "PosiblesHorarios/" + "-".join() + "/"
+		dir = "PosiblesHorarios/" + "-".join(cursosSel) + "/"
 		if not Path(dir).exists():
-			os.mkdirs(dir)
+			os.makedirs(dir)
 		with open(dir + str(horario + 1) + ".csv", "w", encoding="utf-8-sig") as file:
 			csvWriter = csv.writer(file)
 			csvWriter.writerow(["Hora", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"])
