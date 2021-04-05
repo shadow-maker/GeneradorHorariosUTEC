@@ -4,15 +4,6 @@
 
 from itertools import product
 
-# Imprimir cursos disponibles
-def printCursos(horarios):
-	j = 0
-	for i in horarios.items():
-		nom = i[0] + "-" + i[1]["nombre"]
-		endC = " " * (60 - len(nom)) if j % 2 == 0 else "\n"
-		print(nom, end=endC)
-		j += 1
-
 # Formatear horario a una tabla de listas para almacenarse en CSV
 def formatHorario(horario):
 	formatted = []
@@ -46,13 +37,16 @@ def genSecCurso(curso, cod):
 	return [genSemana(sec[1], sec[0], cod, curso["nombre"]) for sec in curso["secciones"].items()]
 
 # Combinar los horarios de las secciones de distintos cursos en un solo horario, si no existen conflictos
-def combHorario(horarios):
+def combHorario(horarios, filtHoraMin, filtHoraMax):
 	horario = [[{} for j in range(24)] for i in range(7)]
 
 	for dia in range(len(horario)):
 		horariosDia = [i[dia] for i in horarios]
 		for hora in range(len(horario[dia])):
 			horariosHora = [i[hora] for i in horariosDia]
+			# ¿Cumple filtros?
+			if (hora < filtHoraMin or hora > filtHoraMax) and len([1 for i in horariosHora if i]) > 0:
+				return []
 			# ¿Existe conflicto?
 			if len([1 for i in horariosHora if i]) > 1:
 				return []
@@ -63,10 +57,10 @@ def combHorario(horarios):
 	return horario
 
 # Comparar los horarios de todas las secciones de todos los cursos seleccionados
-def compCursos(cursos):
+def compCursos(cursos, filtHoraMin, filtHoraMax):
 	posHorarios = []
 	for comb in product(*cursos):
-		horario = combHorario(list(comb))
+		horario = combHorario(list(comb), filtHoraMin, filtHoraMax)
 		if len(horario) != 0:
 			posHorarios.append(horario)
 	return posHorarios

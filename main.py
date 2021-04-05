@@ -34,7 +34,12 @@ print("\nSe encontraron " + str(len(horarios)) + " cursos en el archivo de horar
 print("¿Desea mostrar los cursos disponibles? [Y = Si]:")
 
 if input(">").lower() == "y":
-	func.printCursos(horarios)
+	j = 0
+	for i in horarios.items():
+		nom = i[0] + "-" + i[1]["nombre"]
+		endC = " " * (60 - len(nom)) if j % 2 == 0 else "\n"
+		print(nom, end=endC)
+		j += 1
 
 #
 #
@@ -50,13 +55,19 @@ sel = " "
 
 while sel != "":
 	sel = input(">").upper()
-	if sel in cursosSel:
+	if all([i in list(horarios.keys()) for i in sel.split("-")]):
+		cursosSel = sel.split("-")
+		break
+	elif sel in cursosSel:
 		print("Ese curso ya fue seleccionado!")
 	elif sel in list(horarios.keys()):
 		cursosSel.append(sel)
 		print("SELECCIONADO: " + horarios[sel]["nombre"])
 	elif sel != "":
 		print("Ese curso no existe!")
+
+if len(cursosSel) == 0:
+	sys.exit("El programa ha terminado porque no seleccionó ningun curso")
 
 cursosSel.sort()
 
@@ -65,13 +76,33 @@ print(cursosSel)
 
 #
 #
+#	Pedir al usuario que ingrese filtros de horas
+#
+#
+
+print("\n(FILTRO OPCIONAL) Si desea ingrese la hora mínima de inicio de clases [0-23], si no, enter")
+
+sel = input(">")
+filtHoraMin = int(sel) if sel in [str(i) for i in range(24)] else 0
+
+print("\n(FILTRO OPCIONAL) Si desea ingrese la hora máxima de fin de clases [0-23], si no, enter")
+
+sel = input(">")
+filtHoraMax = int(sel) if sel in [str(i) for i in range(24)] else 23
+
+#
+#
 #	Generar posibles horarios sin conflictos
 #
 #
 
-posHorarios = func.compCursos([func.genSecCurso(horarios[cod], cod) for cod in cursosSel])
+posHorarios = func.compCursos([func.genSecCurso(horarios[cod], cod) for cod in cursosSel], filtHoraMin, filtHoraMax)
 
-print(str(len(posHorarios)) + " posibles horarios sin conflicto encontrados")
+print()
+print(str(len(posHorarios)) + " posibles horarios sin conflicto encontrados con clases entre las " + str(filtHoraMin) + ":00 y " + str(filtHoraMax) + ":00")
+
+if len(posHorarios) == 0:
+	sys.exit("El programa ha terminado porque han encontrado posibles horarios")
 
 #
 #
@@ -93,7 +124,7 @@ print("¿Desea generar un archivo CSV formateado para cada posible horario? [Y =
 
 if input(">").lower() == "y":
 	for horario in range(len(posHorarios)):
-		dir = "PosiblesHorarios/" + "-".join(cursosSel) + "/"
+		dir = "PosiblesHorarios/(" + str(filtHoraMin) + "-" + str(filtHoraMax) + ")_" + "-".join(cursosSel) + "/"
 		if not Path(dir).exists():
 			os.makedirs(dir)
 		with open(dir + str(horario + 1) + ".csv", "w", encoding="utf-8-sig") as file:
