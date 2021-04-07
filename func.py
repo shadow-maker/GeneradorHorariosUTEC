@@ -8,10 +8,14 @@ from itertools import product
 def formatHorario(horario):
 	formatted = []
 
+	def prof(dia, hora):
+		prof = dia[hora]["docente"].split(", ")[1] + " " + dia[hora]["docente"].split(", ")[0] if dia[hora]["docente"].count(", ") == 1 else dia[hora]["docente"]
+		return prof
+
 	for hora in range(24):
 		formatted.append([str(hora).zfill(2) + ":00"])
 		formatted[hora] += [(
-			dia[hora]["codigo"] + "-" + dia[hora]["nombre"] + " (sec" + dia[hora]["seccion"] + "), " + dia[hora]["nomSesion"] + ", " + dia[hora]["docente"]
+			dia[hora]["codigo"] + "-" + dia[hora]["nombre"] + " (sec" + dia[hora]["seccion"] + "), " + dia[hora]["nomSesion"] + ", " + prof(dia, hora)
 		) if len(dia[hora]) > 0 else "" for dia in horario]
 
 	return formatted

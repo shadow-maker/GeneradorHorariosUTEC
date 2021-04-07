@@ -2,6 +2,12 @@
 #
 # github.com/shadow-maker
 
+#
+#
+#	La finalidad de este programa es parsear el archivo de horarios proporcionado por la UTEC (convertido a CSV) a un archivo JSON que organice las secciones de cada curso en diccionarios de una manera más entendible por el usuario y por el programa principal
+#
+#
+
 from pathlib import Path
 import csv
 import json

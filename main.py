@@ -55,7 +55,7 @@ sel = " "
 
 while sel != "":
 	sel = input(">").upper()
-	if all([i in list(horarios.keys()) for i in sel.split("-")]):
+	if sel.count("-") > 0 and all([i in list(horarios.keys()) for i in sel.split("-")]):
 		cursosSel = sel.split("-")
 		break
 	elif sel in cursosSel:
