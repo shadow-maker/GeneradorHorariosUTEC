@@ -15,6 +15,12 @@ print("\nGENERADOR DE HORARIOS UTEC\n")
 print("-" * 30)
 print()
 
+#
+#
+#	Pedir al usuario si desea generar el archivo JSON de horarios (parsear el data.csv)
+#
+#
+
 print("Este programa utiliza el documento de horarios (carga habil) proporcionado por la UTEC para generar todos los posibles horarios con los cursos deseados")
 print("IMPORTANTE: Por el momento este programa solo soporta cursos que siguen la 'semana general'")
 
@@ -27,9 +33,17 @@ if input(">").lower() == "y":
 if not Path("horarios.json").is_file():
 	sys.exit("\n  ERROR: El archivo 'horarios.json' no se encuentra en el directorio\n")
 
+#
+#
+#	Buscar e imprimir cursos
+#
+#
+
+print("\n---\n")
+
 horarios = json.load(open("horarios.json", "r"))
 
-print("\nSe encontraron " + str(len(horarios)) + " cursos en el archivo de horarios")
+print("Se encontraron " + str(len(horarios)) + " cursos en el archivo de horarios")
 
 print("¿Desea mostrar los cursos disponibles? [Y = Si]:")
 
@@ -80,7 +94,9 @@ print(cursosSel)
 #
 #
 
-print("\n(FILTRO OPCIONAL) Si desea ingrese la hora mínima de inicio de clases [0-23], si no, enter")
+print("\n---\n")
+
+print("(FILTRO OPCIONAL) Si desea ingrese la hora mínima de inicio de clases [0-23], si no, enter")
 
 sel = input(">")
 filtHoraMin = int(sel) if sel in [str(i) for i in range(24)] else 0
@@ -96,13 +112,18 @@ filtHoraMax = int(sel) if sel in [str(i) for i in range(24)] else 23
 #
 #
 
+print("\n---\n")
+
 posHorarios = func.compCursos([func.genSecCurso(horarios[cod], cod) for cod in cursosSel], filtHoraMin, filtHoraMax)
 
-print()
 print(str(len(posHorarios)) + " posibles horarios sin conflicto encontrados con clases entre las " + str(filtHoraMin) + ":00 y " + str(filtHoraMax) + ":00")
 
 if len(posHorarios) == 0:
 	sys.exit("El programa ha terminado porque han encontrado posibles horarios")
+
+minList, maxList = func.getLimHorasHorarios(posHorarios)
+minH = min(minList)
+maxH = max(maxList)
 
 #
 #
@@ -120,16 +141,39 @@ print("Los posibles horarios fueron guardados en formato JSON en el archivo 'pos
 #
 #
 
+print("\n---\n")
 print("¿Desea generar un archivo CSV formateado para cada posible horario? [Y = si]")
 
 if input(">").lower() == "y":
 	for horario in range(len(posHorarios)):
-		dir = "PosiblesHorarios/(" + str(filtHoraMin) + "-" + str(filtHoraMax) + ")_" + "-".join(cursosSel) + "/"
+		dir = "PosiblesHorarios/(" + str(filtHoraMin) + "-" + str(filtHoraMax) + ")-" + "-".join(cursosSel) + "/"
 		if not Path(dir).exists():
 			os.makedirs(dir)
 		with open(dir + str(horario + 1) + ".csv", "w", encoding="utf-8-sig") as file:
 			csvWriter = csv.writer(file)
 			csvWriter.writerow(["Hora", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"])
-			for line in func.formatHorario(posHorarios[horario]):
+			for line in func.formatHorario(posHorarios[horario], minH, maxH):
 				csvWriter.writerow(line)
 	"Los horarios formateados fueron almacenados en la carpeta PosiblesHorarios dentro de este directorio"
+
+#
+#
+#	Guardar posibles horarios formateados de manera legible en PDF
+#
+#
+
+print("\n---\n")
+print("¿Desea generar un archivo PDF formateado con todos los posibles horarios?")
+print("  Para esto deberá tener instalado el paquete 'reportlab', si no lo tiene instalado deberá instalarlo y volver a correr este programa")
+print("  Para instalarlo corra el comando 'pip install reportlab' o visite la pagina https://www.reportlab.com/dev/install/open_source_installation/")
+print("Para continuar generando el PDF presione [Y], o enter para terminar")
+
+if input(">").lower() == "y":
+	tableData = [[["", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"]] + func.formatHorario(horario, minH, maxH) for horario in posHorarios]
+
+	import genPDF
+
+	if not Path("PosiblesHorarios").exists():
+		os.makedirs("PosiblesHorarios")
+
+	genPDF.gen("PosiblesHorarios/(" + str(filtHoraMin) + "-" + str(filtHoraMax) + ")-" + "-".join(cursosSel) + ".pdf", tableData, cursosSel)
