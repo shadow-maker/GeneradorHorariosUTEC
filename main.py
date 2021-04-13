@@ -73,12 +73,12 @@ while sel != "":
 		cursosSel = sel.split("-")
 		break
 	elif sel in cursosSel:
-		print("Ese curso ya fue seleccionado!")
+		print("¡Ese curso ya fue seleccionado!")
 	elif sel in list(horarios.keys()):
 		cursosSel.append(sel)
 		print("SELECCIONADO: " + horarios[sel]["nombre"])
 	elif sel != "":
-		print("Ese curso no existe!")
+		print("¡Ese curso no existe!")
 
 if len(cursosSel) == 0:
 	sys.exit("El programa ha terminado porque no seleccionó ningun curso")

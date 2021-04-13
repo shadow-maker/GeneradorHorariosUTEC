@@ -52,14 +52,15 @@ def formatHorario(horario, minH, maxH):
 # Formatear el horario de una seccion de un curso como una lista de listas de diccionarios que represente el horario en una semana
 def genSemana(seccion, sec, cod, nombre):
 	semana = [[{} for j in range(24)] for i in range(7)]
-	for ses in seccion:
+	for ses in seccion["sesiones"]:
 		for i in range(ses["duracion"]):
 			semana[ses["dia"]][ses["hora"]+ i] = {
 				"codigo": cod,
 				"nombre": nombre,
 				"seccion": sec,
 				"nomSesion": ses["sesion"],
-				"vacantes": ses["vacantes"],
+				"vacantes": seccion["vacantes"],
+				"matriculados": seccion["matriculados"],
 				"docente": ses["docente"],
 				"correoDoc": ses["correoDoc"]
 			}
@@ -67,7 +68,8 @@ def genSemana(seccion, sec, cod, nombre):
 
 # Formatear los horarios de todas las secciones de un curso como una lista de listas de diccionarios que represente el horario en una semana
 def genSecCurso(curso, cod):
-	return [genSemana(sec[1], sec[0], cod, curso["nombre"]) for sec in curso["secciones"].items()]
+	# Solo genera horario si hay vacantes disponibles
+	return [genSemana(sec[1], sec[0], cod, curso["nombre"]) for sec in curso["secciones"].items() if sec[1]["matriculados"] < sec[1]["vacantes"]]
 
 # Combinar los horarios de las secciones de distintos cursos en un solo horario, si no existen conflictos
 def combHorario(horarios, filtHoraMin, filtHoraMax):
