@@ -92,8 +92,6 @@ for curso in cursos.items():
 
 	for sec in curso[1]["secciones"].values():
 		for ses in sec["sesiones"]:
-			#delete ses["vacantes"]
-			#delete ses["matriculados"]
 			ses.pop("vacantes", None)
 			ses.pop("matriculados", None)
 
